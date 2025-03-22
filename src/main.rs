@@ -1,6 +1,7 @@
 use clap::Parser;
 use std::path::PathBuf;
 
+mod banner;
 mod cli;
 mod config;
 mod crawler;
@@ -79,6 +80,9 @@ pub struct Cli {
 async fn main() -> anyhow::Result<()> {
     // 初始化日志
     tracing_subscriber::fmt::init();
+    
+    // 显示banner
+    banner::show_banner();
 
     // 解析命令行参数
     let cli = Cli::parse();
