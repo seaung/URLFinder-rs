@@ -51,6 +51,18 @@ impl OutputWriter {
 
     pub fn write_html(&self, results: &[OutputResult]) -> Result<()> {
         let mut handlebars = Handlebars::new();
+        handlebars.register_helper("join", Box::new(|h: &handlebars::Helper, _: &handlebars::Handlebars, _: &handlebars::Context, _: &mut handlebars::RenderContext, out: &mut dyn handlebars::Output| -> handlebars::HelperResult {
+            let param = h.param(0).ok_or(handlebars::RenderError::new("Missing parameter"))?;
+            let arr = param.value().as_array().ok_or(handlebars::RenderError::new("First parameter must be an array"))?;
+            let delimiter = h.param(1).map_or(", ", |v| v.value().as_str().unwrap_or(", "));
+            
+            let strings: Vec<String> = arr.iter()
+                .filter_map(|v| v.as_str().map(|s| s.to_string()))
+                .collect();
+            
+            out.write(&strings.join(delimiter))?;
+            Ok(())
+        }));
         handlebars.register_template_string(
             "report",
             r#"<!DOCTYPE html>
